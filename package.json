@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "doppler run nodemon src/index.js",
+    "start": "run npm run db-up && node src/index.js",
     "db-up": "db-migrate up",
     "db-down": "db-migrate down",
     "db-reset": "db-migrate down && db-migrate up",
