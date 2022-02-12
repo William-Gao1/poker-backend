@@ -13,7 +13,7 @@ const findUser = (id) => {
 }
 
 const addUser = async (username, email, plainTextPassword) => {
-    const user = db.query(findUserByEmail)
+    const user = db.query(findUserByEmail, [email])
     if (user.length > 0) {
         throw {status: responseCode.BAD_REQUEST, message: "Email already in use"}
     }
