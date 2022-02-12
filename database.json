@@ -6,6 +6,7 @@
     "prod": {
         "overwrite": {
           "driver": "pg",
+          "schema": "poker",
           "ssl": {
             "rejectUnauthorized": false
           }
