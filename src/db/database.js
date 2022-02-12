@@ -1,4 +1,7 @@
-const config = {schema: process.env.PGSCHEMA}
+const config = {
+    schema: process.env.PGSCHEMA,
+    ssl: true
+}
 
 const pgp = require("pg-promise")(config)
 
