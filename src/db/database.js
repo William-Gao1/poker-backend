@@ -1,11 +1,12 @@
-const config = {
-    schema: process.env.PGSCHEMA,
-    ssl: true
-}
+const config = {schema: process.env.PGSCHEMA}
 
 const pgp = require("pg-promise")(config)
 
-const cn = process.env.DATABASE_URL
+const cn = {
+    connectionString: process.env.DATABASE_URL,
+    max: 20,
+    ssl: process.env.ENV=='PROD'
+}
 
 const db = pgp(cn)
 
