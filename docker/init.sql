@@ -1,0 +1,5 @@
+CREATE SCHEMA poker AUTHORIZATION poker_user;
+
+GRANT ALL ON SCHEMA poker TO PUBLIC;
+
+GRANT ALL ON SCHEMA poker TO poker_user;

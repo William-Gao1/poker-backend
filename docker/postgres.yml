@@ -1,0 +1,15 @@
+version: '2'
+services:
+  dms-core-service-postgresql:
+    image: postgres:11.6
+    hostname: poker-postgresql
+    container_name: poker-postgresql
+    volumes:
+      - ~/postgresql/poker:/var/lib/postgresql/data/
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_USER=poker_user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=poker
+    ports:
+      - "5432:5432"
