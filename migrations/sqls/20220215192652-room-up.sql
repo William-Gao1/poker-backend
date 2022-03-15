@@ -1,7 +1,5 @@
 CREATE TYPE room_status AS ENUM('WAITING', 'ACTIVE', 'DONE');
 
-ALTER TABLE app_user ALTER COLUMN money SET NOT NULL;
-
 CREATE TABLE room (
     id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     active_id               VARCHAR(5) NOT NULL,
