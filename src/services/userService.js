@@ -3,13 +3,11 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const createSQLFile = require("../db/queryFile")
 const responseCode = require('../enum/responseCode')
+const { addUserQuery, findUserByIdQuery, findUserByEmailQuery, updateFundsQuery } = require('../db/sqlFiles')
 
-const addUserQuery = createSQLFile('addUser')
-const findUserByIdQuery = createSQLFile('findUserById')
-const findUserByEmail = createSQLFile('findUserByEmail')
 
 const findUser = (id) => {
-    return db.query(findUserByIdQuery, [id])
+    return db.one(findUserByIdQuery, [id])
 }
 
 const addUser = async (username, email, plainTextPassword) => {
@@ -18,7 +16,7 @@ const addUser = async (username, email, plainTextPassword) => {
         throw {status: responseCode.BAD_REQUEST, message: "Email already in use"}
     }
     const hashedPassword = await bcrypt.hash(plainTextPassword, parseInt(process.env.SALT_ROUNDS))
-    return db.one(addUserQuery, [username, email, hashedPassword])
+    return db.one(addUserQuery, [username, email, hashedPassword, process.env.STARTING_AMOUNT])
 }
 
 const generateToken = (id) => {
@@ -28,7 +26,7 @@ const generateToken = (id) => {
 }
 
 const loginUser = async (email, plainTextPassword) => {
-    const user = await db.query(findUserByEmail, [email])
+    const user = await db.query(findUserByEmailQuery, [email])
     if (user.length == 0) {
         throw {status: responseCode.BAD_REQUEST, message: "Wrong email or password"}
     }
@@ -44,9 +42,30 @@ const loginUser = async (email, plainTextPassword) => {
     }
 }
 
+const withdrawFunds = async (amountToWithdraw, userId) => {
+    const { money } = await findUser(userId);
+    if (money < amountToWithdraw) {
+        throw {status: responseCode.BAD_REQUEST, message: "Insufficient funds"}
+    }
+
+    const newAmount = money - +amountToWithdraw;
+    await db.query(updateFundsQuery, [newAmount, userId]);
+
+    return newAmount;
+}
+
+const addFunds = async (amountToAdd, userId) => {
+    const { money } = await findUser(userId);
+    const newAmount = money + +amountToAdd;
+    await db.query(updateFundsQuery, [newAmount, userId]);
+    return newAmount;
+}
+
 module.exports = {
     findUser,
     addUser,
     generateToken,
-    loginUser
+    loginUser,
+    withdrawFunds,
+    addFunds
 }
