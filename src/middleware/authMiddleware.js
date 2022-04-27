@@ -13,7 +13,6 @@ const auth = async (req, res, next) => {
             res.status(responseCode.UNAUTHENTICATED).send({ error: "Please Authenticate" });
         }
         delete user.password;
-        console.log(user)
         req.token = token;
         req.user = user;
         next();
@@ -25,8 +24,6 @@ const auth = async (req, res, next) => {
 const socketAuth = async (socket, next) => {
     try {
         const token = socket.handshake.headers.auth || socket.handshake.auth.token;
-        console.log(socket.handshake)
-        console.log(token)
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await findUser(decoded._id);
         if (!user) {
@@ -40,7 +37,7 @@ const socketAuth = async (socket, next) => {
         delete user.password;
         socket.user = user;
         connections.set(user.id, socket.id)
-        console.log(`Connected. Active connections: ${connections.size}`)
+        console.log(`${user.username} Connected. Active connections: ${connections.size}`)
         next();
     } catch (e) {
         const err = new Error("Auth Failed")

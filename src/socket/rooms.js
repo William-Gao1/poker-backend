@@ -1,3 +1,4 @@
+const { disconnect } = require('../services/disconnectService')
 const roomService = require('../services/roomService')
 
 const handler = (socket, io) => {
@@ -18,17 +19,24 @@ const handler = (socket, io) => {
 
     socket.on('join room', async (activeID, callback) => {
         try {
-            console.log(socket.user, activeID)
             const result = await roomService.addPlayerToRoom(socket.user, activeID)
             console.log('user added to room: ', socket.user.id, activeID)
+            io.to(result.id).emit('player update', result.players)
             socket.join(result.id)
-            io.to(result.id).emit('message', "hello")
             callback(result)
         } catch (e) {
             console.log(e)
             if (callback) {
                 callback(e)
             }
+        }
+    })
+
+    socket.on('leave room', async () => {
+        const alert = await disconnect(socket.user.id);
+        if (alert) {
+            socket.leave(alert.id)
+            io.to(alert.id).emit('player update', alert.players)
         }
     })
 }

@@ -27,10 +27,10 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         const alert = disconnect(socket.user.id);
         if (alert) {
-            socket.to(alert.activeId).emit('player update', alert.players)
+            socket.to(alert.id).emit('player update', alert.players)
         }
         connections.delete(socket.user.id);
-        console.log(`Disconnected. Active connections: ${connections.size}`);
+        console.log(`${socket.user.username} Disconnected. Active connections: ${connections.size}`);
     })
 
     require('./socket/test')(socket)

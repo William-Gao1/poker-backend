@@ -39,6 +39,11 @@ const createRoom = async (ownerId, bigBlind, smallBlind, buyIn = process.env.DEF
     if (!ownerId || !bigBlind || !smallBlind) {
         throw {status: responseCode.BAD_REQUEST, message: 'Please provide all required fields'}
     }
+    if(isNaN(bigBlind) || isNaN(smallBlind)) {
+        throw {status: responseCode.BAD_REQUEST, message: 'Big blind and small blind are not valid integers'}
+    } else if (+bigBlind < 0 || +smallBlind < 0) {
+        throw {status: responseCode.BAD_REQUEST, message: 'Big blind and small blind are not positive integers'}
+    }
     if (await isUserInGame(ownerId)) {
         throw {status: responseCode.BAD_REQUEST, message: 'User is already in a game'}
     }
@@ -59,7 +64,8 @@ const createRoom = async (ownerId, bigBlind, smallBlind, buyIn = process.env.DEF
             moneyInPot: 0,
             bigBlind: false,
             smallBlind: false,
-            playing: false
+            playing: false,
+            moneyBet: 0
         }
     }
 
@@ -73,7 +79,7 @@ const createRoom = async (ownerId, bigBlind, smallBlind, buyIn = process.env.DEF
     const {status, big_blind, small_blind, max_players, action_max_time, id, active_id} = await db.one(createRoomQuery, [shuffledDeck, roomStatus.WAITING, bigBlind, smallBlind, owner.id, players, activeId, actionMaxTime, maxPlayers, 1, buyIn])
 
     return {
-        status: responseCode.CREATED, roomStatus: status, big_blind, small_blind, max_players, action_max_time, id, active_id
+        status: responseCode.CREATED, roomStatus: status, big_blind, small_blind, max_players, action_max_time, id, active_id, players, location: 0, pot: room.pot
     }
 }
 
@@ -82,11 +88,12 @@ const addPlayerToRoom = async (user, activeId) => {
         throw {status: responseCode.BAD_REQUEST, message: 'Please provide all required fields'}
     }
     const [room] = await db.query(findRoomByActiveIdQuery, [activeId]);
-    if (!room || room.status != roomStatus.ACTIVE || room.status != roomStatus.WAITING) {
+    if (!room || (room.status != roomStatus.ACTIVE && room.status != roomStatus.WAITING)) {
         throw {status: responseCode.BAD_REQUEST, message: 'Room does not exist'}
     }
-    if (Object.values(room.players).find(({id}) => id == user.id)) {
-        return {status: responseCode.OK, players: room.players, active_id: room.active_id, id: room.id};
+    const existingSeat = Object.keys(room.players).find((seat) => room.players[seat].id == user.id);
+    if (existingSeat) {
+        return {status: responseCode.OK, players: room.players, active_id: room.active_id, id: room.id, location: existingSeat, max_players: room.max_players};
     }
     if (await isUserInGame(user.id)) {
         throw {status: responseCode.BAD_REQUEST, message: 'User is already in a game'}
@@ -109,7 +116,8 @@ const addPlayerToRoom = async (user, activeId) => {
         moneyInPot: 0,
         bigBlind: false,
         smallBlind: false,
-        playing: false
+        playing: false,
+        moneyBet: 0
     }
 
     
@@ -121,8 +129,7 @@ const addPlayerToRoom = async (user, activeId) => {
     existingPlayers[nextSpot] = newPlayer;
 
     await db.query(updatePlayersInRoomQuery, [existingPlayers, Object.keys(existingPlayers).length, room.id])
-    
-    return {status: responseCode.OK, players: existingPlayers, active_id: room.active_id, id: room.id};
+    return {status: responseCode.OK, players: existingPlayers, active_id: room.active_id, id: room.id, location: nextSpot, max_players: room.max_players, pot: room.pot};
 }
 
 const startGame = async (ownerId, activeId) => {

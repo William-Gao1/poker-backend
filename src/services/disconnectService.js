@@ -18,8 +18,9 @@ const disconnect = async (userId) => {
         if (Object.keys(players).length == 0) {
             db.query(updateRoomStatusQuery, [roomStatus.DONE, room.id])
         }
-        db.query(updatePlayersInRoomQuery, [players, Object.keys(players).length, room.id])
-        return {activeId: room.active_id, players}
+        await db.query(updatePlayersInRoomQuery, [players, Object.keys(players).length, room.id])
+        console.log(`user removed from room: ${userId} ${room.active_id}`)
+        return {id: room.id, players}
     }
 
     
