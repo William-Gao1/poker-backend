@@ -9,8 +9,7 @@ const { socketAuth, connections } = require('./middleware/authMiddleware');
 const { disconnect } = require('./services/disconnectService');
 const io = new Server(server, {
     cors: {
-        origin: process.env.FRONT_END_URL,
-        methods: ["GET", "POST"]
+        origin: process.env.FRONT_END_URL
     }
 });
 
