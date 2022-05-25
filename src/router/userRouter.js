@@ -12,7 +12,7 @@ router.post('/', async (req, res) => {
         res.status(responseCode.CREATED).send({token})
     } catch (e) {
         console.log(e)
-        res.status(responseCode.SERVER_ERROR).send(e)
+        res.status(e.status || 500).json(e)
     }
 })
 

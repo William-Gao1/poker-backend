@@ -24,10 +24,10 @@ io.use(socketAuth)
 
 io.on('connection', (socket) => {
 
-    socket.on('disconnect', () => {
-        const alert = disconnect(socket.user.id);
+    socket.on('disconnect', async () => {
+        const alert = await disconnect(socket.user.id);
         if (alert) {
-            socket.to(alert.id).emit('player update', alert.players)
+            socket.to(alert.id).emit('player update', alert)
         }
         connections.delete(socket.user.id);
         console.log(`${socket.user.username} Disconnected. Active connections: ${connections.size}`);

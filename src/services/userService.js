@@ -1,7 +1,6 @@
 const db = require("../db/database")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const createSQLFile = require("../db/queryFile")
 const responseCode = require('../enum/responseCode')
 const { addUserQuery, findUserByIdQuery, findUserByEmailQuery, updateFundsQuery } = require('../db/sqlFiles')
 
@@ -11,12 +10,19 @@ const findUser = (id) => {
 }
 
 const addUser = async (username, email, plainTextPassword) => {
-    const user = db.query(findUserByEmail, [email])
+    if (!username || !email || !plainTextPassword) {
+        throw {status: responseCode.BAD_REQUEST, message: "Please provide all required fields"}
+    }
+    const user = await db.query(findUserByEmailQuery, [email])
     if (user.length > 0) {
         throw {status: responseCode.BAD_REQUEST, message: "Email already in use"}
     }
     const hashedPassword = await bcrypt.hash(plainTextPassword, parseInt(process.env.SALT_ROUNDS))
-    return db.one(addUserQuery, [username, email, hashedPassword, process.env.STARTING_AMOUNT])
+    const newUser = await db.one(addUserQuery, [username, email, hashedPassword, process.env.STARTING_AMOUNT])
+    const id = newUser.id;
+    delete newUser.password
+    delete newUser.id
+    return {token: generateToken(id), user: newUser}
 }
 
 const generateToken = (id) => {

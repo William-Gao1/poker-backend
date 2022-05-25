@@ -10,6 +10,7 @@ const findUserByIdQuery = createSQLFile('findUserById')
 const findUserByEmailQuery = createSQLFile('findUserByEmail')
 const updateFundsQuery = createSQLFile('updateFunds')
 const updateRoomStatusQuery = createSQLFile('updateRoomStatus')
+const updateRoomQuery = createSQLFile('updateRoom')
 
 module.exports = {
     findUserInRoomQuery,
@@ -21,5 +22,6 @@ module.exports = {
     findUserByIdQuery,
     findUserByEmailQuery,
     updateFundsQuery,
-    updateRoomStatusQuery
+    updateRoomStatusQuery,
+    updateRoomQuery
 }
