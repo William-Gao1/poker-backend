@@ -40,7 +40,6 @@ const isUserInGame = async (id) => {
 }
 
 const createRoom = async (ownerId, bigBlind, smallBlind, buyIn = process.env.DEFAULT_BUY_IN, maxPlayers = process.env.DEFAULT_MAX_PLAYERS, actionMaxTime = process.env.DEFAULT_ACTION_MAX_TIME) => {
-    console.log(2)
     if (!ownerId || !bigBlind || !smallBlind) {
         throw {status: responseCode.BAD_REQUEST, message: 'Please provide all required fields'}
     }
@@ -53,7 +52,6 @@ const createRoom = async (ownerId, bigBlind, smallBlind, buyIn = process.env.DEF
         throw {status: responseCode.BAD_REQUEST, message: 'User is already in a game'}
     }
     const owner = await userService.findUser(ownerId);
-    console.log(3)
     if (!owner) {
         throw {status: responseCode.BAD_REQUEST, message: 'Owner not found'}
     }
