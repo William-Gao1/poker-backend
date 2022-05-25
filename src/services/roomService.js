@@ -40,6 +40,7 @@ const isUserInGame = async (id) => {
 }
 
 const createRoom = async (ownerId, bigBlind, smallBlind, buyIn = process.env.DEFAULT_BUY_IN, maxPlayers = process.env.DEFAULT_MAX_PLAYERS, actionMaxTime = process.env.DEFAULT_ACTION_MAX_TIME) => {
+    console.log(2)
     if (!ownerId || !bigBlind || !smallBlind) {
         throw {status: responseCode.BAD_REQUEST, message: 'Please provide all required fields'}
     }
@@ -52,6 +53,7 @@ const createRoom = async (ownerId, bigBlind, smallBlind, buyIn = process.env.DEF
         throw {status: responseCode.BAD_REQUEST, message: 'User is already in a game'}
     }
     const owner = await userService.findUser(ownerId);
+    console.log(3)
     if (!owner) {
         throw {status: responseCode.BAD_REQUEST, message: 'Owner not found'}
     }
@@ -80,7 +82,7 @@ const createRoom = async (ownerId, bigBlind, smallBlind, buyIn = process.env.DEF
         activeId = randomString.generate({length: process.env.ACTIVE_ID_LENGTH, capitalization: "uppercase"})
         conflictRooms = await db.query(findRoomByActiveIdQuery, [activeId]);
     } while (conflictRooms.length > 0);
-    
+    console.log(4)
     const {status, big_blind, small_blind, max_players, action_max_time, id, active_id, pot, turn, community_cards, minimum_call} = await db.one(createRoomQuery, [shuffledDeck, roomStatus.WAITING, bigBlind, smallBlind, owner.id, players, activeId, actionMaxTime, maxPlayers, 1, buyIn])
 
     return {

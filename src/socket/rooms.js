@@ -5,6 +5,7 @@ const {connections} = require('../middleware/authMiddleware')
 const handler = (socket, io) => {
     socket.on('create room', async ({bigBlind, smallBlind}, callback) => {
         try{
+            console.log(1)
             const result = await roomService.createRoom(socket.user.id, bigBlind, smallBlind)
             console.log('room created: ', bigBlind, smallBlind, socket.user.id)
             socket.join(result.id)
